@@ -7,11 +7,14 @@ import {
   Settings,
   BarChart3,
   ShoppingCart,
-  MapPin,
   UserCheck,
   Database,
   Home,
   LogOut,
+  CheckSquare,
+  FileCheck,
+  MessageSquare,
+  ClipboardList,
 } from "lucide-react"
 
 import {
@@ -73,6 +76,24 @@ const deliveryItems = [
   },
 ]
 
+const agreementItems = [
+  {
+    title: "合意対象一覧",
+    url: "/agreement/targets",
+    icon: CheckSquare,
+  },
+  {
+    title: "承認管理",
+    url: "/agreement/approvals",
+    icon: FileCheck,
+  },
+  {
+    title: "合意履歴",
+    url: "/agreement/history",
+    icon: MessageSquare,
+  },
+]
+
 const masterDataItems = [
   {
     title: "商品マスタ",
@@ -121,6 +142,11 @@ const adminItems = [
     title: "システム管理",
     url: "/admin/system",
     icon: Settings,
+  },
+  {
+    title: "その他機能",
+    url: "/others",
+    icon: ClipboardList,
   },
 ]
 
@@ -192,11 +218,29 @@ export function AppSidebar() {
 
         <SidebarSeparator />
 
-                <SidebarGroup>
+        <SidebarGroup>
           <SidebarGroupLabel>運送管理</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {deliveryItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>合意管理</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {agreementItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
