@@ -34,6 +34,7 @@ export default function OrderDetailPage() {
     transportCompany: "運送会社1",
     remarks: "取扱注意",
     amount: "¥125,000",
+    oilType: "出光A", // 油種を追加
   })
 
   // 履歴データを更新
@@ -142,29 +143,50 @@ export default function OrderDetailPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="customer">顧客</Label>
+                  <Label htmlFor="customer">需要家</Label>
                   <Select value={orderData.customer} disabled={!isEditing}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ABC Corporation">ABC Corporation</SelectItem>
-                      <SelectItem value="XYZ Limited">XYZ Limited</SelectItem>
-                      <SelectItem value="DEF Industries">DEF Industries</SelectItem>
+                      <SelectItem value="ABC商事">ABC商事</SelectItem>
+                      <SelectItem value="XYZ株式会社">XYZ株式会社</SelectItem>
+                      <SelectItem value="DEF工業">DEF工業</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="specialStore">特約店</Label>
+                  <Label htmlFor="specialStore">特販店</Label>
                   <Select value={orderData.specialStore} disabled={!isEditing}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Store A">Store A</SelectItem>
-                      <SelectItem value="Store B">Store B</SelectItem>
-                      <SelectItem value="Store C">Store C</SelectItem>
+                      <SelectItem value="店舗A">店舗A</SelectItem>
+                      <SelectItem value="店舗B">店舗B</SelectItem>
+                      <SelectItem value="店舗C">店舗C</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="oilType">油種</Label>
+                  <Select
+                    value={orderData.oilType}
+                    onValueChange={(value) => setOrderData((prev) => ({ ...prev, oilType: value }))}
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="出光A">出光A</SelectItem>
+                      <SelectItem value="出光B">出光B</SelectItem>
+                      <SelectItem value="出光C">出光C</SelectItem>
+                      <SelectItem value="軽油">軽油</SelectItem>
+                      <SelectItem value="重油">重油</SelectItem>
+                      <SelectItem value="ガソリン">ガソリン</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -180,7 +202,7 @@ export default function OrderDetailPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="deliveryDate">配送日</Label>
+                  <Label htmlFor="deliveryDate">着日</Label>
                   <Input
                     id="deliveryDate"
                     type="date"
@@ -191,15 +213,15 @@ export default function OrderDetailPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="oilBusinessOffice">石油営業所</Label>
+                  <Label htmlFor="oilBusinessOffice">事業所</Label>
                   <Select value={orderData.oilBusinessOffice} disabled={!isEditing}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Office 1">Office 1</SelectItem>
-                      <SelectItem value="Office 2">Office 2</SelectItem>
-                      <SelectItem value="Office 3">Office 3</SelectItem>
+                      <SelectItem value="営業所1">営業所1</SelectItem>
+                      <SelectItem value="営業所2">営業所2</SelectItem>
+                      <SelectItem value="営業所3">営業所3</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -211,9 +233,9 @@ export default function OrderDetailPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Carrier 1">Carrier 1</SelectItem>
-                      <SelectItem value="Carrier 2">Carrier 2</SelectItem>
-                      <SelectItem value="Carrier 3">Carrier 3</SelectItem>
+                      <SelectItem value="運送会社1">運送会社1</SelectItem>
+                      <SelectItem value="運送会社2">運送会社2</SelectItem>
+                      <SelectItem value="運送会社3">運送会社3</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

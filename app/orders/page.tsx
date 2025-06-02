@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Download, Search, Plus, Eye } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
 // Mock data
@@ -17,6 +18,7 @@ const orders = [
     orderNumber: "2024-001",
     customer: "ABC商事",
     specialStore: "店舗A",
+    item: "出光A",
     status: "下書き",
     orderDate: "2024-01-15",
     deliveryDate: "2024-01-20",
@@ -28,6 +30,7 @@ const orders = [
     orderNumber: "2024-002",
     customer: "XYZ株式会社",
     specialStore: "店舗B",
+    item: "出光B",
     status: "配送指示待ち",
     orderDate: "2024-01-16",
     deliveryDate: "2024-01-22",
@@ -39,33 +42,99 @@ const orders = [
     orderNumber: "2024-003",
     customer: "DEF工業",
     specialStore: "店舗A",
+    item: "出光C",
     status: "配送中",
     orderDate: "2024-01-17",
     deliveryDate: "2024-01-25",
     quantity: 200,
     amount: "¥210,000",
   },
+  {
+    id: "ORD-004",
+    orderNumber: "2024-004",
+    customer: "GHI商事",
+    specialStore: "店舗C",
+    item: "軽油",
+    status: "配送完了",
+    orderDate: "2024-01-14",
+    deliveryDate: "2024-01-19",
+    quantity: 150,
+    amount: "¥180,000",
+  },
+  {
+    id: "ORD-005",
+    orderNumber: "2024-005",
+    customer: "JKL工業",
+    specialStore: "店舗B",
+    item: "重油",
+    status: "配送前",
+    orderDate: "2024-01-18",
+    deliveryDate: "2024-01-23",
+    quantity: 300,
+    amount: "¥450,000",
+  },
 ]
 
 export default function OrderListPage() {
+  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [storeFilter, setStoreFilter] = useState("all")
+  const [itemFilter, setItemFilter] = useState("all")
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase())
+      order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.item.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "all" || order.status === statusFilter
     const matchesStore = storeFilter === "all" || order.specialStore === storeFilter
+    const matchesItem = itemFilter === "all" || order.item === itemFilter
 
-    return matchesSearch && matchesStatus && matchesStore
+    return matchesSearch && matchesStatus && matchesStore && matchesItem
   })
 
   const exportToCSV = () => {
-    // Mock CSV export
-    console.log("Exporting filtered orders to CSV...")
+    toast({
+      title: "CSV出力開始",
+      description: "受注一覧のCSVファイルを生成中です",
+    })
   }
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "配送中":
+      case "配送完了":
+        return "default"
+      case "配送前":
+      case "配送指示待ち":
+        return "secondary"
+      case "下書き":
+        return "outline"
+      default:
+        return "secondary"
+    }
+  }
+
+  const getTotalAmount = () => {
+    return filteredOrders.reduce((total, order) => {
+      const amount = Number.parseInt(order.amount.replace(/[¥,]/g, ""))
+      return total + amount
+    }, 0)
+  }
+
+  const getStatusCounts = () => {
+    const counts = {
+      total: filteredOrders.length,
+      draft: filteredOrders.filter((o) => o.status === "下書き").length,
+      pending: filteredOrders.filter((o) => o.status === "配送指示待ち").length,
+      shipping: filteredOrders.filter((o) => o.status === "配送中").length,
+      completed: filteredOrders.filter((o) => o.status === "配送完了").length,
+    }
+    return counts
+  }
+
+  const statusCounts = getStatusCounts()
 
   return (
     <div className="p-6 space-y-6">
@@ -82,12 +151,40 @@ export default function OrderListPage() {
         </Link>
       </div>
 
+      {/* Summary Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">{statusCounts.total}</div>
+            <p className="text-xs text-muted-foreground">総受注数</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">{statusCounts.pending}</div>
+            <p className="text-xs text-muted-foreground">配送指示待ち</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">{statusCounts.shipping}</div>
+            <p className="text-xs text-muted-foreground">配送中</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">¥{getTotalAmount().toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">合計金額</p>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>フィルター</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-5">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -114,13 +211,28 @@ export default function OrderListPage() {
 
             <Select value={storeFilter} onValueChange={setStoreFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="特約店" />
+                <SelectValue placeholder="特販店" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">すべての店舗</SelectItem>
-                <SelectItem value="Store A">店舗A</SelectItem>
-                <SelectItem value="Store B">店舗B</SelectItem>
-                <SelectItem value="Store C">店舗C</SelectItem>
+                <SelectItem value="all">すべての特販店</SelectItem>
+                <SelectItem value="店舗A">店舗A</SelectItem>
+                <SelectItem value="店舗B">店舗B</SelectItem>
+                <SelectItem value="店舗C">店舗C</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={itemFilter} onValueChange={setItemFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="油種" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">すべての油種</SelectItem>
+                <SelectItem value="出光A">出光A</SelectItem>
+                <SelectItem value="出光B">出光B</SelectItem>
+                <SelectItem value="出光C">出光C</SelectItem>
+                <SelectItem value="軽油">軽油</SelectItem>
+                <SelectItem value="重油">重油</SelectItem>
+                <SelectItem value="ガソリン">ガソリン</SelectItem>
               </SelectContent>
             </Select>
 
@@ -138,8 +250,9 @@ export default function OrderListPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>受注番号</TableHead>
-                <TableHead>顧客</TableHead>
-                <TableHead>特約店</TableHead>
+                <TableHead>需要家</TableHead>
+                <TableHead>特販店</TableHead>
+                <TableHead>油種</TableHead>
                 <TableHead>ステータス</TableHead>
                 <TableHead>受注日</TableHead>
                 <TableHead>配送予定日</TableHead>
@@ -159,24 +272,15 @@ export default function OrderListPage() {
                   <TableCell>{order.customer}</TableCell>
                   <TableCell>{order.specialStore}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={
-                        order.status === "配送中" || order.status === "配送完了"
-                          ? "default"
-                          : order.status === "配送前"
-                            ? "secondary"
-                            : order.status === "配送指示待ち"
-                              ? "outline"
-                              : "secondary"
-                      }
-                    >
-                      {order.status}
-                    </Badge>
+                    <Badge variant="outline">{order.item}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                   </TableCell>
                   <TableCell>{order.orderDate}</TableCell>
                   <TableCell>{order.deliveryDate}</TableCell>
-                  <TableCell>{order.quantity}</TableCell>
-                  <TableCell>{order.amount}</TableCell>
+                  <TableCell>{order.quantity}L</TableCell>
+                  <TableCell className="font-medium">{order.amount}</TableCell>
                   <TableCell>
                     <Link href={`/orders/${order.id}`}>
                       <Button variant="ghost" size="sm">
@@ -193,7 +297,7 @@ export default function OrderListPage() {
 
       <div className="flex justify-between items-center">
         <p className="text-sm text-muted-foreground">
-          {orders.length}件中{filteredOrders.length}件を表示
+          {orders.length}件中{filteredOrders.length}件を表示 | 合計金額: ¥{getTotalAmount().toLocaleString()}
         </p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">

@@ -11,73 +11,83 @@ import { Download, Search, Plus, Eye } from "lucide-react"
 import Link from "next/link"
 
 // Mock data
-const shippingStatuses = [
+const deliveryStatuses = [
   {
-    id: "SS-001",
+    id: "DS-001",
     orderNumber: "2024-001",
     customer: "ABC商事",
-    businessOffice: "営業所1",
-    estimatedArrivalDate: "2024-01-21",
-    estimatedArrivalTime: "午前",
-    truckNumber: "T-001",
-    status: "配送中",
+    deliveryAddress: "東京都千代田区1-1-1",
+    estimatedArrivalTime: "2024-01-21 10:30",
+    actualArrivalTime: "",
+    driverName: "田中運転手",
+    vehicleNumber: "品川500あ1234",
+    status: "運送中",
     deliveryConfirmed: false,
+    signatureReceived: false,
   },
   {
-    id: "SS-002",
+    id: "DS-002",
     orderNumber: "2024-002",
     customer: "XYZ株式会社",
-    businessOffice: "営業所2",
-    estimatedArrivalDate: "2024-01-23",
-    estimatedArrivalTime: "午後",
-    truckNumber: "T-002",
-    status: "配送中",
+    deliveryAddress: "大阪府大阪市中央区2-2-2",
+    estimatedArrivalTime: "2024-01-22 14:00",
+    actualArrivalTime: "",
+    driverName: "佐藤運転手",
+    vehicleNumber: "なにわ500あ5678",
+    status: "運送中",
     deliveryConfirmed: false,
+    signatureReceived: false,
   },
   {
-    id: "SS-003",
+    id: "DS-003",
     orderNumber: "2024-003",
     customer: "DEF工業",
-    businessOffice: "営業所1",
-    estimatedArrivalDate: "2024-01-19",
-    estimatedArrivalTime: "午前",
-    truckNumber: "T-003",
-    status: "配送完了",
+    deliveryAddress: "愛知県名古屋市中区3-3-3",
+    estimatedArrivalTime: "2024-01-19 09:00",
+    actualArrivalTime: "2024-01-19 09:15",
+    driverName: "鈴木運転手",
+    vehicleNumber: "名古屋500あ9012",
+    status: "運送完了",
     deliveryConfirmed: true,
+    signatureReceived: true,
   },
 ]
 
-export default function ShippingStatusPage() {
+export default function DeliveryStatusPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [officeFilter, setOfficeFilter] = useState("all")
+  const [confirmationFilter, setConfirmationFilter] = useState("all")
 
-  const filteredStatuses = shippingStatuses.filter((status) => {
+  const filteredStatuses = deliveryStatuses.filter((status) => {
     const matchesSearch =
       status.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      status.customer.toLowerCase().includes(searchTerm.toLowerCase())
+      status.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      status.driverName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "all" || status.status === statusFilter
-    const matchesOffice = officeFilter === "all" || status.businessOffice === officeFilter
+    const matchesConfirmation =
+      confirmationFilter === "all" ||
+      (confirmationFilter === "confirmed" && status.deliveryConfirmed) ||
+      (confirmationFilter === "unconfirmed" && !status.deliveryConfirmed)
 
-    return matchesSearch && matchesStatus && matchesOffice
+    return matchesSearch && matchesStatus && matchesConfirmation
   })
 
   const exportToCSV = () => {
     // Mock CSV export
-    console.log("Exporting filtered shipping statuses to CSV...")
+    console.log("Exporting filtered delivery statuses to CSV...")
   }
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">出荷対象編集</h1>
-          <p className="text-muted-foreground">すべての出荷対象を管理・追跡</p>
+          <h1 className="text-3xl font-bold">運送対象編集</h1>
+          <p className="text-muted-foreground">すべての運送対象を管理・追跡</p>
         </div>
-        <Link href="/shipping/status/new">
+        <Link href="/delivery/status/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            新規出荷対象
+            新規運送対象
           </Button>
         </Link>
       </div>
@@ -91,7 +101,7 @@ export default function ShippingStatusPage() {
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="出荷対象を検索..."
+                placeholder="運送対象を検索..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-8"
@@ -104,21 +114,20 @@ export default function ShippingStatusPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">すべてのステータス</SelectItem>
-                <SelectItem value="配送前">配送前</SelectItem>
-                <SelectItem value="配送中">配送中</SelectItem>
-                <SelectItem value="配送完了">配送完了</SelectItem>
+                <SelectItem value="運送前">運送前</SelectItem>
+                <SelectItem value="運送中">運送中</SelectItem>
+                <SelectItem value="運送完了">運送完了</SelectItem>
               </SelectContent>
             </Select>
 
-            <Select value={officeFilter} onValueChange={setOfficeFilter}>
+            <Select value={confirmationFilter} onValueChange={setConfirmationFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="営業所" />
+                <SelectValue placeholder="配送確認" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">すべての営業所</SelectItem>
-                <SelectItem value="営業所1">営業所1</SelectItem>
-                <SelectItem value="営業所2">営業所2</SelectItem>
-                <SelectItem value="営業所3">営業所3</SelectItem>
+                <SelectItem value="all">すべて</SelectItem>
+                <SelectItem value="confirmed">確認済み</SelectItem>
+                <SelectItem value="unconfirmed">未確認</SelectItem>
               </SelectContent>
             </Select>
 
@@ -137,10 +146,11 @@ export default function ShippingStatusPage() {
               <TableRow>
                 <TableHead>受注番号</TableHead>
                 <TableHead>顧客</TableHead>
-                <TableHead>営業所</TableHead>
-                <TableHead>到着予定日</TableHead>
-                <TableHead>到着予定時間</TableHead>
-                <TableHead>トラック番号</TableHead>
+                <TableHead>配送先住所</TableHead>
+                <TableHead>到着予定時刻</TableHead>
+                <TableHead>実際到着時刻</TableHead>
+                <TableHead>運転手</TableHead>
+                <TableHead>車両番号</TableHead>
                 <TableHead>ステータス</TableHead>
                 <TableHead>配送確認</TableHead>
                 <TableHead>操作</TableHead>
@@ -150,27 +160,37 @@ export default function ShippingStatusPage() {
               {filteredStatuses.map((status) => (
                 <TableRow key={status.id}>
                   <TableCell className="font-medium">
-                    <Link href={`/shipping/status/${status.id}`} className="text-blue-600 hover:underline">
+                    <Link href={`/delivery/status/${status.id}`} className="text-blue-600 hover:underline">
                       {status.orderNumber}
                     </Link>
                   </TableCell>
                   <TableCell>{status.customer}</TableCell>
-                  <TableCell>{status.businessOffice}</TableCell>
-                  <TableCell>{status.estimatedArrivalDate}</TableCell>
+                  <TableCell>{status.deliveryAddress}</TableCell>
                   <TableCell>{status.estimatedArrivalTime}</TableCell>
-                  <TableCell>{status.truckNumber}</TableCell>
+                  <TableCell>{status.actualArrivalTime || "未到着"}</TableCell>
+                  <TableCell>{status.driverName}</TableCell>
+                  <TableCell>{status.vehicleNumber}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
-                        status.status === "配送完了" ? "default" : status.status === "配送中" ? "secondary" : "outline"
+                        status.status === "運送完了" ? "default" : status.status === "運送中" ? "secondary" : "outline"
                       }
                     >
                       {status.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>{status.deliveryConfirmed ? "確認済み" : "未確認"}</TableCell>
                   <TableCell>
-                    <Link href={`/shipping/status/${status.id}`}>
+                    <div className="flex flex-col gap-1">
+                      <span>{status.deliveryConfirmed ? "確認済み" : "未確認"}</span>
+                      {status.signatureReceived && (
+                        <Badge variant="outline" className="text-xs">
+                          署名済み
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Link href={`/delivery/status/${status.id}`}>
                       <Button variant="ghost" size="sm">
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -185,7 +205,7 @@ export default function ShippingStatusPage() {
 
       <div className="flex justify-between items-center">
         <p className="text-sm text-muted-foreground">
-          {shippingStatuses.length}件中{filteredStatuses.length}件を表示
+          {deliveryStatuses.length}件中{filteredStatuses.length}件を表示
         </p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">

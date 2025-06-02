@@ -59,18 +59,16 @@ const orderItems = [
 
 const shippingItems = [
   {
-    title: "配送指示",
+    title: "出荷対象一覧",
     url: "/shipping/instructions",
     icon: Truck,
   },
+]
+
+const deliveryItems = [
   {
-    title: "配送状況一覧",
-    url: "/shipping/status",
-    icon: MapPin,
-  },
-  {
-    title: "配送状況登録",
-    url: "/shipping/status/new",
+    title: "運送対象一覧",
+    url: "/delivery/instructions",
     icon: Truck,
   },
 ]
@@ -175,10 +173,30 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>配送管理</SidebarGroupLabel>
+          <SidebarGroupLabel>出荷管理</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {shippingItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+                <SidebarGroup>
+          <SidebarGroupLabel>運送管理</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {deliveryItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>

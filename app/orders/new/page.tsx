@@ -27,6 +27,7 @@ export default function OrderRegistrationPage() {
     deliveryTimePM: false,
     transportCompany: "",
     remarks: "",
+    oilType: "", // 油種を追加
   })
 
   const handleQuantityChange = (value: string) => {
@@ -45,7 +46,7 @@ export default function OrderRegistrationPage() {
     e.preventDefault()
 
     // Validation
-    if (!formData.specialStore || !formData.oilBusinessOffice || !formData.quantity) {
+    if (!formData.specialStore || !formData.oilBusinessOffice || !formData.quantity || !formData.oilType) {
       toast({
         title: "入力エラー",
         description: "必須項目をすべて入力してください",
@@ -87,13 +88,13 @@ export default function OrderRegistrationPage() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="specialStore">特約店 *</Label>
+                <Label htmlFor="specialStore">特販店 *</Label>
                 <Select
                   value={formData.specialStore}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, specialStore: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="特約店を選択" />
+                    <SelectValue placeholder="特販店を選択" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="store-a">店舗A</SelectItem>
@@ -104,13 +105,13 @@ export default function OrderRegistrationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="customer">顧客</Label>
+                <Label htmlFor="customer">需要家</Label>
                 <Select
                   value={formData.customer}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, customer: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="顧客を選択" />
+                    <SelectValue placeholder="需要家を選択" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="abc-corp">ABC株式会社</SelectItem>
@@ -121,18 +122,38 @@ export default function OrderRegistrationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="oilBusinessOffice">石油営業所 *</Label>
+                <Label htmlFor="oilType">油種 *</Label>
+                <Select
+                  value={formData.oilType}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, oilType: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="油種を選択" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="出光A">出光A</SelectItem>
+                    <SelectItem value="出光B">出光B</SelectItem>
+                    <SelectItem value="出光C">出光C</SelectItem>
+                    <SelectItem value="軽油">軽油</SelectItem>
+                    <SelectItem value="重油">重油</SelectItem>
+                    <SelectItem value="ガソリン">ガソリン</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="oilBusinessOffice">事業所 *</Label>
                 <Select
                   value={formData.oilBusinessOffice}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, oilBusinessOffice: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="営業所を選択" />
+                    <SelectValue placeholder="事業所を選択" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="office-1">営業所1</SelectItem>
-                    <SelectItem value="office-2">営業所2</SelectItem>
-                    <SelectItem value="office-3">営業所3</SelectItem>
+                    <SelectItem value="office-1">事業所1</SelectItem>
+                    <SelectItem value="office-2">事業所2</SelectItem>
+                    <SelectItem value="office-3">事業所3</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -149,7 +170,7 @@ export default function OrderRegistrationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="deliveryDate">希望配送日 *</Label>
+                <Label htmlFor="deliveryDate">希望着日 *</Label>
                 <Input
                   id="deliveryDate"
                   type="date"
@@ -159,7 +180,7 @@ export default function OrderRegistrationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>配送時間 *</Label>
+                <Label>着時間指定 *</Label>
                 <div className="flex gap-4">
                   <div className="flex items-center space-x-2">
                     <Checkbox
