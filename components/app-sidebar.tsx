@@ -82,16 +82,6 @@ const agreementItems = [
     url: "/agreement/targets",
     icon: CheckSquare,
   },
-  {
-    title: "承認管理",
-    url: "/agreement/approvals",
-    icon: FileCheck,
-  },
-  {
-    title: "合意履歴",
-    url: "/agreement/history",
-    icon: MessageSquare,
-  },
 ]
 
 const masterDataItems = [
